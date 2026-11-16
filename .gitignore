@@ -1,0 +1,25 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# IDEs & System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Sensitive local files
+.env
+.gemini/
+
+# Scratch & Temporary Logs
+*.log
+scratch/
