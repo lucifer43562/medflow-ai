@@ -130,8 +130,8 @@ class HospitalOptimizationEngine:
                         model.Add(x[pid, b.bed_id] == 0)
                     elif triage.required_bed_type != BedType.ISOLATION_BED and b.bed_type == BedType.ISOLATION_BED:
                         model.Add(x[pid, b.bed_id] == 0)
-                    # 3. General Observation Bed discipline: General/Low cases MUST take General beds
-                    elif triage.required_bed_type == BedType.GENERAL_BED and b.bed_type not in [BedType.GENERAL_BED, BedType.EMERGENCY_BED]:
+                    # 3. General Observation Bed discipline: General/Low cases MUST take General beds (NEVER Emergency or ICU!)
+                    elif (triage.required_bed_type == BedType.GENERAL_BED or triage.priority in [TriagePriority.LOW, TriagePriority.MODERATE]) and b.bed_type != BedType.GENERAL_BED:
                         model.Add(x[pid, b.bed_id] == 0)
                         
             if triage and triage.required_staff_roles:
@@ -291,12 +291,6 @@ class HospitalOptimizationEngine:
                     # Emergency cases fallback to General Ward Bed
                     for b in free_beds:
                         if b.bed_id not in assigned_beds_set and b.bed_type == BedType.GENERAL_BED:
-                            target_bed = b
-                            break
-                elif triage.required_bed_type == BedType.GENERAL_BED:
-                    # General observation cases fallback to Emergency Bed ONLY if General is 100% full
-                    for b in free_beds:
-                        if b.bed_id not in assigned_beds_set and b.bed_type == BedType.EMERGENCY_BED:
                             target_bed = b
                             break
                     

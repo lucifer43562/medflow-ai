@@ -232,6 +232,39 @@ state = coordinator.state
 metrics = state.metrics
 
 # ==============================================================================
+# SIDEBAR CONTROLS & GEMINI API KEY INTEGRATION
+# ==============================================================================
+with st.sidebar:
+    st.markdown("### 🏥 MedFlow AI Controls")
+    
+    st.markdown("#### 🔑 GenAI Model Configuration")
+    user_api_key = st.text_input(
+        "Google Gemini API Key",
+        value=st.session_state.get("custom_gemini_key", ""),
+        type="password",
+        placeholder="AIzaSy...",
+        help="Optional: Enter a Gemini API Key to activate Google Gemini 2.5 Flash for clinical triage reasoning."
+    )
+    if user_api_key:
+        st.session_state["custom_gemini_key"] = user_api_key
+        try:
+            from google import genai
+            coordinator.triage_agent.api_key = user_api_key
+            coordinator.triage_agent.client = genai.Client(api_key=user_api_key)
+            st.success("🟢 Gemini 2.5 Flash Connected")
+        except Exception as e:
+            st.error(f"Gemini Client Error: {e}")
+    else:
+        st.caption("ℹ️ Using Deterministic Clinical Rule Engine (NEWS2 + ESI v4)")
+        
+    st.markdown("---")
+    st.markdown("#### 🔄 Hospital State Reset")
+    if st.button("🧹 Reset Hospital & Clear State", use_container_width=True):
+        coordinator.reset_hospital()
+        st.success("Hospital state cleared to baseline.")
+        st.rerun()
+
+# ==============================================================================
 # HEADER COMPONENT
 # ==============================================================================
 st.markdown("""
@@ -397,7 +430,7 @@ with tabs[0]:
                 a = state.allocations.get(pid)
                 if t:
                     p_label = t.priority.value
-                    if a and a.is_allocated:
+                    if a and a.is_allocated and a.assigned_bed_id:
                         if a.assigned_bed_type and "ICU" in a.assigned_bed_type.value:
                             dest = "ICU Ward"
                         elif a.assigned_bed_type and "EMERGENCY" in a.assigned_bed_type.value:
@@ -406,6 +439,8 @@ with tabs[0]:
                             dest = "Isolation Bay"
                         else:
                             dest = "General Observation"
+                    elif t.priority == TriagePriority.CRITICAL and a and a.assigned_bed_id:
+                        dest = "ICU Ward"
                     else:
                         dest = "Waiting Queue"
                         
@@ -746,7 +781,7 @@ with tabs[3]:
                 f"- **Ambiguity Noise:** {scen_info['ambiguity_ratio'] * 100:.0f}%")
         
         sim_delay = st.slider("Arrival Speed (delay seconds)", 0.0, 0.8, 0.1, 0.1)
-        sim_approve = st.checkbox("Auto-approve non-critical review cases", value=True)
+        sim_approve = st.checkbox("Auto-approve all review tickets in simulation", value=True)
         
         if st.button("🚀 Launch Live Surge Simulation", type="primary", use_container_width=True):
             pts, res_obj = load_scenario(scen_key)
@@ -760,7 +795,7 @@ with tabs[3]:
                 res = coordinator.intake_patient(p)
                 if sim_approve and res["requires_doctor_review"]:
                     tk_id = next((tid for tid, tk in coordinator.state.pending_doctor_reviews.items() if tk.patient_id == p.patient_id), None)
-                    if tk_id and res["triage"]["priority"] != "CRITICAL":
+                    if tk_id:
                         coordinator.handle_doctor_action(ticket_id=tk_id, action=DoctorAction.APPROVE, doctor_id="SIM-DOC")
                 if sim_delay > 0:
                     time.sleep(sim_delay)
