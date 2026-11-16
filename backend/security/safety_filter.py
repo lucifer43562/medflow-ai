@@ -7,8 +7,15 @@ Evaluates LLM clinical output against configurable safety risk thresholds:
 - PERMISSIVE (High Threshold: e.g. 0.80) -> Only halts catastrophic harm / lethal contraindications.
 """
 
-from typing import Dict, Any, List, Optional
+from enum import Enum
+from typing import Dict, Any, List, Optional, Tuple
 from pydantic import BaseModel, Field
+
+
+class SafetySensitivity(str, Enum):
+    STRICT = "STRICT"
+    BALANCED = "BALANCED"
+    PERMISSIVE = "PERMISSIVE"
 
 
 class SafetyFilterEvaluation(BaseModel):
@@ -39,6 +46,35 @@ class ClinicalSafetyFilter:
     3. Dangerous Drug / Procedural Contraindications
     4. Toxic or Adversarial Guidance
     """
+
+    def __init__(self, sensitivity: SafetySensitivity = SafetySensitivity.BALANCED):
+        self.sensitivity = sensitivity
+        self.threshold = (
+            0.20 if sensitivity == SafetySensitivity.STRICT
+            else (0.85 if sensitivity == SafetySensitivity.PERMISSIVE else 0.50)
+        )
+
+    def evaluate_risk(self, prompt: str) -> Tuple[str, float, List[str]]:
+        text_lower = prompt.lower()
+        violations = []
+        score = 0.05
+        
+        # Check adversarial prompt injection patterns
+        injection_triggers = [
+            "ignore previous", "ignore all", "bypass", "pretend you are",
+            "developer mode", "system prompt", "override", "force allocate", "dan mode"
+        ]
+        matched_triggers = [t for t in injection_triggers if t in text_lower]
+        if matched_triggers:
+            score = 0.95
+            violations.append(f"INJECTION_ATTACK_DETECTED: Matched trigger '{matched_triggers[0]}'")
+            
+        if any(w in text_lower for w in ["kill", "murder", "bomb", "attack the doctor"]):
+            score = max(score, 0.99)
+            violations.append("TOXIC_CONTENT: Threat detected in clinical input.")
+            
+        verdict = "BLOCK" if score >= self.threshold else "PASS"
+        return verdict, score, violations
 
     @classmethod
     def evaluate(
