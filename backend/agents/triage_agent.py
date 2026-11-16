@@ -187,15 +187,34 @@ Respond with ONLY a raw JSON object with this exact structure:
         
         if is_critical:
             severity = min(100, 85 + news2 * 2)
+            dept = "ICU" if (v.oxygen_saturation < 86 or v.consciousness_level == ConsciousnessLevel.UNRESPONSIVE or news2 >= 9) else "EMERGENCY"
+            bed_type = "ICU_BED" if dept == "ICU" else "EMERGENCY_BED"
+            eq = ["VENTILATOR", "ECG_MONITOR", "VITAL_SIGNS_MONITOR"] if v.oxygen_saturation < 86 else ["ECG_MONITOR", "OXYGEN_SUPPLY", "VITAL_SIGNS_MONITOR"]
+            staff = ["ICU_SPECIALIST", "CRITICAL_CARE_NURSE"] if dept == "ICU" else ["EMERGENCY_DOCTOR", "CRITICAL_CARE_NURSE"]
+            
+            alarming_vitals = []
+            if v.oxygen_saturation < 90: alarming_vitals.append(f"Severe Hypoxemia (SpO2: {v.oxygen_saturation}%)")
+            if v.systolic_bp < 90: alarming_vitals.append(f"Circulatory Shock / Hypotension (BP: {v.systolic_bp}/{v.diastolic_bp} mmHg)")
+            if v.heart_rate > 130 or v.heart_rate < 50: alarming_vitals.append(f"Severe Arrhythmia / Tachycardia (HR: {v.heart_rate} bpm)")
+            if v.respiratory_rate > 28: alarming_vitals.append(f"Tachypnea (RR: {v.respiratory_rate}/min)")
+            if v.consciousness_level != ConsciousnessLevel.ALERT: alarming_vitals.append(f"Altered Sensorium ({v.consciousness_level.value})")
+            
+            clinical_rationale = (
+                f"CRITICAL ESI-1 PROTOCOL ACTIVATED: Patient {patient.name} ({patient.age}y {patient.gender.value}) "
+                f"presents with '{patient.chief_complaint}'. Standardized NEWS2 score of {news2} confirms imminent "
+                f"physiological collapse. Primary clinical triggers: {'; '.join(alarming_vitals) if alarming_vitals else 'Severe hemodynamic instability'}. "
+                f"Suspected Differential: Acute Cardiogenic Shock / Severe Respiratory Failure / Septic Organ Hypoperfusion. "
+                f"Mandatory Action: Immediate transfer to {dept} ({bed_type}), invasive airway protection/ventilation, continuous 12-lead ECG telemetry, and urgent attending intensivist review."
+            )
             return {
                 "severity_score": severity,
                 "priority": "CRITICAL",
-                "confidence": 0.95 if not patient.is_ambiguous else 0.70,
-                "recommended_department": "ICU" if v.oxygen_saturation < 86 or v.consciousness_level == ConsciousnessLevel.UNRESPONSIVE else "EMERGENCY",
-                "required_bed_type": "ICU_BED" if (v.oxygen_saturation < 86 or news2 >= 9) else "EMERGENCY_BED",
-                "required_equipment": ["VENTILATOR", "ECG_MONITOR", "VITAL_SIGNS_MONITOR"] if v.oxygen_saturation < 86 else ["ECG_MONITOR", "OXYGEN_SUPPLY"],
-                "required_staff_roles": ["ICU_SPECIALIST", "CRITICAL_CARE_NURSE"] if v.oxygen_saturation < 86 else ["EMERGENCY_DOCTOR", "CRITICAL_CARE_NURSE"],
-                "reasoning_summary": f"High physiological deterioration (NEWS2={news2}). Immediate resuscitation and advanced life support indicated."
+                "confidence": 0.96 if not patient.is_ambiguous else 0.74,
+                "recommended_department": dept,
+                "required_bed_type": bed_type,
+                "required_equipment": eq,
+                "required_staff_roles": staff,
+                "reasoning_summary": clinical_rationale
             }
             
         # Level 2: High Risk / Emergent (NEWS2 5-6, or severe pain with acute presentation)
@@ -210,15 +229,22 @@ Respond with ONLY a raw JSON object with this exact structure:
         
         if is_high:
             severity = 65 + news2 * 3
+            clinical_rationale = (
+                f"EMERGENT ESI-2 PROTOCOL: Patient {patient.name} ({patient.age}y) presents with '{patient.chief_complaint}' "
+                f"(Symptoms: {', '.join(patient.symptoms)}). Elevated NEWS2 of {news2} combined with acute distress indicates "
+                f"high risk of rapid physiological decompensation. Vitals: HR {v.heart_rate} bpm, BP {v.systolic_bp}/{v.diastolic_bp} mmHg, SpO2 {v.oxygen_saturation}%, Pain {v.pain_score}/10. "
+                f"Suspected Differential: Acute Coronary Syndrome (ACS), Acute Pulmonary Embolism, or Cerebrovascular Event. "
+                f"Action Required: Emergency Department bed, immediate 12-lead ECG, cardiac biomarkers/troponin stat draw, and Emergency Physician evaluation within 10 minutes."
+            )
             return {
                 "severity_score": severity,
                 "priority": "HIGH",
-                "confidence": 0.90 if not patient.is_ambiguous else 0.68,
+                "confidence": 0.92 if not patient.is_ambiguous else 0.70,
                 "recommended_department": "EMERGENCY",
                 "required_bed_type": "EMERGENCY_BED",
                 "required_equipment": ["ECG_MONITOR", "VITAL_SIGNS_MONITOR"],
                 "required_staff_roles": ["EMERGENCY_DOCTOR", "CRITICAL_CARE_NURSE"],
-                "reasoning_summary": f"Emergent presentation requiring urgent physician evaluation (NEWS2={news2}). High risk of deterioration."
+                "reasoning_summary": clinical_rationale
             }
             
         # Level 3: Moderate (NEWS2 3-4, or significant symptoms requiring multiple hospital resources)
@@ -232,27 +258,39 @@ Respond with ONLY a raw JSON object with this exact structure:
         )
         
         if is_moderate:
+            clinical_rationale = (
+                f"URGENT ESI-3 PROTOCOL: Patient {patient.name} ({patient.age}y) presents with '{patient.chief_complaint}'. "
+                f"Moderate physiological deviation with NEWS2={news2}. Vitals show stable hemodynamics (HR {v.heart_rate} bpm, BP {v.systolic_bp}/{v.diastolic_bp} mmHg, SpO2 {v.oxygen_saturation}%), "
+                f"but symptoms require dedicated diagnostic workup (laboratory chemistry, imaging, IV hydration). "
+                f"Plan: General observation bed placement, IV access, symptomatic analgesic relief, and serial vital checks."
+            )
             return {
                 "severity_score": 45 + news2 * 4,
                 "priority": "MODERATE",
-                "confidence": 0.88,
+                "confidence": 0.90,
                 "recommended_department": "GENERAL_WARD",
                 "required_bed_type": "GENERAL_BED",
                 "required_equipment": ["VITAL_SIGNS_MONITOR", "INFUSION_PUMP"],
                 "required_staff_roles": ["EMERGENCY_DOCTOR", "WARD_NURSE"],
-                "reasoning_summary": f"Urgent condition (NEWS2={news2}). Vitals stable but requires symptomatic relief, observation, or diagnostic workup."
+                "reasoning_summary": clinical_rationale
             }
             
         # Level 4/5: Low / Non-urgent
+        clinical_rationale = (
+            f"NON-URGENT ESI-4/5 PROTOCOL: Patient {patient.name} ({patient.age}y) presents with stable complaint '{patient.chief_complaint}'. "
+            f"Normal physiological parameters with NEWS2={news2} (HR {v.heart_rate} bpm, BP {v.systolic_bp}/{v.diastolic_bp} mmHg, SpO2 {v.oxygen_saturation}%). "
+            f"No acute life-threatening red flags detected. "
+            f"Recommendation: Outpatient triage or ambulatory general observation, routine nursing evaluation, and standard medical counseling."
+        )
         return {
             "severity_score": 20 + news2 * 3,
             "priority": "LOW",
-            "confidence": 0.94,
+            "confidence": 0.95,
             "recommended_department": "OUTPATIENT",
             "required_bed_type": "GENERAL_BED",
             "required_equipment": ["VITAL_SIGNS_MONITOR"],
             "required_staff_roles": ["WARD_NURSE"],
-            "reasoning_summary": f"Non-urgent stable presentation (NEWS2={news2}). Routine outpatient or general observation suitable."
+            "reasoning_summary": clinical_rationale
         }
 
     def _apply_safety_guardrails(

@@ -119,10 +119,11 @@ class HospitalOptimizationEngine:
             
             if triage:
                 for b in usable_beds:
-                    # 1. ICU Bed exclusivity: ONLY ICU-requiring patients can take ICU beds
-                    if triage.required_bed_type != BedType.ICU_BED and b.bed_type == BedType.ICU_BED:
+                    # 1. ICU Bed exclusivity: ONLY ICU-requiring or Critical patients can take ICU beds
+                    if triage.required_bed_type != BedType.ICU_BED and triage.priority != TriagePriority.CRITICAL and b.bed_type == BedType.ICU_BED:
                         model.Add(x[pid, b.bed_id] == 0)
-                    elif triage.required_bed_type == BedType.ICU_BED and b.bed_type != BedType.ICU_BED:
+                    elif (triage.required_bed_type == BedType.ICU_BED or triage.priority == TriagePriority.CRITICAL) and b.bed_type not in [BedType.ICU_BED, BedType.EMERGENCY_BED]:
+                        # Critical patients can only be assigned to ICU or Emergency Resuscitation beds
                         model.Add(x[pid, b.bed_id] == 0)
                     # 2. Isolation Bed exclusivity
                     elif triage.required_bed_type == BedType.ISOLATION_BED and b.bed_type != BedType.ISOLATION_BED:
@@ -130,12 +131,17 @@ class HospitalOptimizationEngine:
                     elif triage.required_bed_type != BedType.ISOLATION_BED and b.bed_type == BedType.ISOLATION_BED:
                         model.Add(x[pid, b.bed_id] == 0)
                     # 3. General Observation Bed discipline: General/Low cases MUST take General beds
-                    elif triage.required_bed_type == BedType.GENERAL_BED and b.bed_type != BedType.GENERAL_BED:
+                    elif triage.required_bed_type == BedType.GENERAL_BED and b.bed_type not in [BedType.GENERAL_BED, BedType.EMERGENCY_BED]:
                         model.Add(x[pid, b.bed_id] == 0)
                         
             if triage and triage.required_staff_roles:
                 for role in triage.required_staff_roles:
                     qual_staff = [s for s in usable_staff if s.role == role]
+                    # Clinical Cross-Role Staffing Fallback under staffing deficits
+                    if not qual_staff and role == StaffRole.ICU_SPECIALIST:
+                        qual_staff = [s for s in usable_staff if s.role == StaffRole.EMERGENCY_DOCTOR]
+                    if not qual_staff and role == StaffRole.CRITICAL_CARE_NURSE:
+                        qual_staff = [s for s in usable_staff if s.role in [StaffRole.WARD_NURSE, StaffRole.ICU_SPECIALIST]]
                     if qual_staff:
                         model.Add(sum(y[pid, s.staff_id] for s in qual_staff) >= u[pid])
                     else:
@@ -303,17 +309,17 @@ class HospitalOptimizationEngine:
                     if s.role == role and staff_usage[sid] < s.max_patient_capacity:
                         found_s = sid
                         break
-                # Cross-role clinical support for Critical cases under surge
-                if not found_s and role == StaffRole.CRITICAL_CARE_NURSE:
+                # Cross-role clinical support for Critical cases under surge / staff shortage
+                if not found_s and role == StaffRole.ICU_SPECIALIST:
                     for sid, s in staff_map.items():
-                        if s.role in [StaffRole.ICU_SPECIALIST, StaffRole.WARD_NURSE] and staff_usage[sid] < s.max_patient_capacity:
+                        if s.role == StaffRole.EMERGENCY_DOCTOR and staff_usage[sid] < s.max_patient_capacity:
                             found_s = sid
                             break
-                if found_s:
-                    matched_staff.append(found_s)
-                else:
-                    staff_ok = False
-                    break
+                if not found_s and role == StaffRole.CRITICAL_CARE_NURSE:
+                    for sid, s in staff_map.items():
+                        if s.role in [StaffRole.WARD_NURSE, StaffRole.ICU_SPECIALIST] and staff_usage[sid] < s.max_patient_capacity:
+                            found_s = sid
+                            break
                 if found_s:
                     matched_staff.append(found_s)
                 else:
