@@ -6,6 +6,7 @@ from .guardrails import (
 )
 from .safety_filter import (
     ClinicalSafetyFilter,
+    SafetySensitivity,
     SafetyFilterEvaluation,
     MultiSensitivityExperimentResult
 )
