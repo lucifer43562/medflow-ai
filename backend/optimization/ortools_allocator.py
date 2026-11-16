@@ -119,9 +119,18 @@ class HospitalOptimizationEngine:
             
             if triage:
                 for b in usable_beds:
-                    if triage.required_bed_type == BedType.ICU_BED and b.bed_type != BedType.ICU_BED:
+                    # 1. ICU Bed exclusivity: ONLY ICU-requiring patients can take ICU beds
+                    if triage.required_bed_type != BedType.ICU_BED and b.bed_type == BedType.ICU_BED:
                         model.Add(x[pid, b.bed_id] == 0)
+                    elif triage.required_bed_type == BedType.ICU_BED and b.bed_type != BedType.ICU_BED:
+                        model.Add(x[pid, b.bed_id] == 0)
+                    # 2. Isolation Bed exclusivity
                     elif triage.required_bed_type == BedType.ISOLATION_BED and b.bed_type != BedType.ISOLATION_BED:
+                        model.Add(x[pid, b.bed_id] == 0)
+                    elif triage.required_bed_type != BedType.ISOLATION_BED and b.bed_type == BedType.ISOLATION_BED:
+                        model.Add(x[pid, b.bed_id] == 0)
+                    # 3. General Observation Bed discipline: General/Low cases MUST take General beds
+                    elif triage.required_bed_type == BedType.GENERAL_BED and b.bed_type != BedType.GENERAL_BED:
                         model.Add(x[pid, b.bed_id] == 0)
                         
             if triage and triage.required_staff_roles:
@@ -228,8 +237,8 @@ class HospitalOptimizationEngine:
             if not t:
                 return 0.0
             prio_weight = {
-                TriagePriority.CRITICAL: 20000.0,
-                TriagePriority.HIGH: 8000.0,
+                TriagePriority.CRITICAL: 50000.0,
+                TriagePriority.HIGH: 15000.0,
                 TriagePriority.MODERATE: 3000.0,
                 TriagePriority.LOW: 1000.0
             }.get(t.priority, 1000.0)
@@ -255,20 +264,35 @@ class HospitalOptimizationEngine:
                 allocations.append(ResourceAllocation(patient_id=pid, is_allocated=False, is_queued=True))
                 continue
                 
-            # 1. Match Bed
+            # 1. Match Bed with strict clinical tier hierarchy
             target_bed = None
+            
+            # Step A: Attempt Exact Bed Type Match
             for b in free_beds:
-                if b.bed_id in assigned_beds_set:
-                    continue
-                if triage.required_bed_type == BedType.ICU_BED and b.bed_type == BedType.ICU_BED:
+                if b.bed_id not in assigned_beds_set and b.bed_type == triage.required_bed_type:
                     target_bed = b
                     break
-                elif triage.required_bed_type == BedType.ISOLATION_BED and b.bed_type == BedType.ISOLATION_BED:
-                    target_bed = b
-                    break
-                elif triage.required_bed_type in [BedType.EMERGENCY_BED, BedType.GENERAL_BED] and b.bed_type in [BedType.EMERGENCY_BED, BedType.GENERAL_BED]:
-                    target_bed = b
-                    break
+                    
+            # Step B: Clinical Fallback Matching
+            if not target_bed:
+                if triage.required_bed_type == BedType.ICU_BED or triage.priority == TriagePriority.CRITICAL:
+                    # Critical ICU cases fallback to Emergency Resuscitation Bed
+                    for b in free_beds:
+                        if b.bed_id not in assigned_beds_set and b.bed_type == BedType.EMERGENCY_BED:
+                            target_bed = b
+                            break
+                elif triage.required_bed_type == BedType.EMERGENCY_BED:
+                    # Emergency cases fallback to General Ward Bed
+                    for b in free_beds:
+                        if b.bed_id not in assigned_beds_set and b.bed_type == BedType.GENERAL_BED:
+                            target_bed = b
+                            break
+                elif triage.required_bed_type == BedType.GENERAL_BED:
+                    # General observation cases fallback to Emergency Bed ONLY if General is 100% full
+                    for b in free_beds:
+                        if b.bed_id not in assigned_beds_set and b.bed_type == BedType.EMERGENCY_BED:
+                            target_bed = b
+                            break
                     
             # 2. Match Staff Roles
             matched_staff = []
@@ -279,6 +303,17 @@ class HospitalOptimizationEngine:
                     if s.role == role and staff_usage[sid] < s.max_patient_capacity:
                         found_s = sid
                         break
+                # Cross-role clinical support for Critical cases under surge
+                if not found_s and role == StaffRole.CRITICAL_CARE_NURSE:
+                    for sid, s in staff_map.items():
+                        if s.role in [StaffRole.ICU_SPECIALIST, StaffRole.WARD_NURSE] and staff_usage[sid] < s.max_patient_capacity:
+                            found_s = sid
+                            break
+                if found_s:
+                    matched_staff.append(found_s)
+                else:
+                    staff_ok = False
+                    break
                 if found_s:
                     matched_staff.append(found_s)
                 else:

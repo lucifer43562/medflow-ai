@@ -188,12 +188,10 @@ class HospitalCoordinator:
                 "action_required": escalation.action_required
             })
             
-            # If critical, tentatively hold the bed so it is not poached while doctor reviews
-            if candidate_alloc and candidate_alloc.assigned_bed_id:
-                bed = self.state.beds.get(candidate_alloc.assigned_bed_id)
-                if bed:
-                    bed.status = BedStatus.RESERVED
-                    bed.current_patient_id = pid
+            # Immediately commit the bed allocation so the patient is actively admitted to ICU/Ward
+            # and receiving resuscitation, while keeping the ticket active for physician review/override.
+            if candidate_alloc and candidate_alloc.is_allocated:
+                self._commit_allocation(candidate_alloc)
         else:
             # Safe to auto-commit
             if candidate_alloc and candidate_alloc.is_allocated:
