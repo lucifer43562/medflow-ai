@@ -50,12 +50,16 @@ class PromptVarianceEvaluator:
             cost_per_1k_patients = round(cost_per_patient * 1000.0, 4)
             
             results.append({
+                "key": arch["key"],
+                "name": arch["name"],
                 "architecture_key": arch["key"],
                 "architecture_name": arch["name"],
                 "patients_evaluated": len(patients),
                 "clinical_concordance_pct": arch["concordance"],
                 "avg_latency_ms": avg_lat,
                 "avg_tokens_per_call": sample_tokens,
+                "avg_tokens_per_intake": sample_tokens,
+                "cost_per_1k_patients_usd": cost_per_1k_patients,
                 "cost_per_1000_patients_usd": f"${cost_per_1k_patients:.4f}",
                 "operational_recommendation": "Optimal for complex/ambiguous trauma" if "ReAct" in arch["name"] else "Best balance of cost and throughput"
             })
@@ -65,5 +69,7 @@ class PromptVarianceEvaluator:
             "sample_size": num_patients,
             "cost_model": "Google Gemini 2.5 Flash ($0.0003 / 1K tokens)",
             "results": results,
+            "architectures_tested": results,
+            "optimal_architecture": "ReAct Architecture (Tool Augmented)",
             "synthesis": "ReAct architecture achieves the highest clinical concordance (96.5%) during ambiguous surges, with a modest latency trade-off (+30ms). Few-Shot is recommended as the default operational baseline."
         }
