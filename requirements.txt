@@ -9,6 +9,7 @@ websockets>=12.0
 requests>=2.32.0
 
 # Constraint Optimization & Math
+ortools>=9.9.3963
 numpy>=1.26.0
 pandas>=2.2.0
 

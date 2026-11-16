@@ -335,8 +335,10 @@ class HospitalOptimizationEngine:
                 if found_e:
                     matched_eq.append(found_e)
                 else:
-                    eq_ok = False
-                    break
+                    if req_eq_type == EquipmentType.VENTILATOR and triage.priority == TriagePriority.CRITICAL:
+                        eq_ok = False
+                        break
+                    # Monitoring devices gracefully degrade without turning patient away
                     
             if target_bed and staff_ok and eq_ok:
                 assigned_beds_set.add(target_bed.bed_id)
