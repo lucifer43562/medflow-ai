@@ -60,7 +60,7 @@ def generate_default_resources(
             role=StaffRole.ICU_SPECIALIST,
             department="Intensive Care",
             shift=StaffShift.DAY,
-            max_patient_capacity=5
+            max_patient_capacity=6
         ),
         Staff(
             staff_id="DOC-ICU-02",
@@ -68,7 +68,31 @@ def generate_default_resources(
             role=StaffRole.ICU_SPECIALIST,
             department="Intensive Care",
             shift=StaffShift.DAY,
-            max_patient_capacity=5
+            max_patient_capacity=6
+        ),
+        Staff(
+            staff_id="DOC-ICU-03",
+            name="Dr. Ananya Roy, MD",
+            role=StaffRole.ICU_SPECIALIST,
+            department="Intensive Care",
+            shift=StaffShift.DAY,
+            max_patient_capacity=6
+        ),
+        Staff(
+            staff_id="DOC-ICU-04",
+            name="Dr. Lucas Meyer, MD",
+            role=StaffRole.ICU_SPECIALIST,
+            department="Intensive Care",
+            shift=StaffShift.DAY,
+            max_patient_capacity=6
+        ),
+        Staff(
+            staff_id="DOC-ICU-05",
+            name="Dr. Fatima Zahra, MD",
+            role=StaffRole.ICU_SPECIALIST,
+            department="Intensive Care",
+            shift=StaffShift.DAY,
+            max_patient_capacity=6
         ),
         Staff(
             staff_id="DOC-ER-01",
@@ -76,7 +100,7 @@ def generate_default_resources(
             role=StaffRole.EMERGENCY_DOCTOR,
             department="Emergency",
             shift=StaffShift.DAY,
-            max_patient_capacity=6
+            max_patient_capacity=8
         ),
         Staff(
             staff_id="DOC-ER-02",
@@ -84,7 +108,7 @@ def generate_default_resources(
             role=StaffRole.EMERGENCY_DOCTOR,
             department="Emergency",
             shift=StaffShift.DAY,
-            max_patient_capacity=6
+            max_patient_capacity=8
         ),
         Staff(
             staff_id="DOC-ER-03",
@@ -92,7 +116,15 @@ def generate_default_resources(
             role=StaffRole.EMERGENCY_DOCTOR,
             department="Emergency",
             shift=StaffShift.DAY,
-            max_patient_capacity=6
+            max_patient_capacity=8
+        ),
+        Staff(
+            staff_id="DOC-ER-04",
+            name="Dr. Jennifer Wu, MD",
+            role=StaffRole.EMERGENCY_DOCTOR,
+            department="Emergency",
+            shift=StaffShift.DAY,
+            max_patient_capacity=8
         ),
         Staff(
             staff_id="NURSE-CC-01",
@@ -100,7 +132,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=5
         ),
         Staff(
             staff_id="NURSE-CC-02",
@@ -108,7 +140,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=5
         ),
         Staff(
             staff_id="NURSE-CC-03",
@@ -116,7 +148,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=5
         ),
         Staff(
             staff_id="NURSE-CC-04",
@@ -124,7 +156,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=5
         ),
         Staff(
             staff_id="NURSE-CC-05",
@@ -132,7 +164,31 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=5
+        ),
+        Staff(
+            staff_id="NURSE-CC-06",
+            name="Nurse Zachary Scott, BSN",
+            role=StaffRole.CRITICAL_CARE_NURSE,
+            department="ICU / Resus",
+            shift=StaffShift.DAY,
+            max_patient_capacity=5
+        ),
+        Staff(
+            staff_id="NURSE-CC-07",
+            name="Nurse Maya Lin, BSN",
+            role=StaffRole.CRITICAL_CARE_NURSE,
+            department="ICU / Resus",
+            shift=StaffShift.DAY,
+            max_patient_capacity=5
+        ),
+        Staff(
+            staff_id="NURSE-CC-08",
+            name="Nurse Tariq Mansoor, BSN",
+            role=StaffRole.CRITICAL_CARE_NURSE,
+            department="ICU / Resus",
+            shift=StaffShift.DAY,
+            max_patient_capacity=5
         ),
         Staff(
             staff_id="NURSE-GEN-01",
@@ -140,7 +196,7 @@ def generate_default_resources(
             role=StaffRole.WARD_NURSE,
             department="General Ward",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=8
         ),
         Staff(
             staff_id="NURSE-GEN-02",
@@ -148,7 +204,23 @@ def generate_default_resources(
             role=StaffRole.WARD_NURSE,
             department="General Ward",
             shift=StaffShift.DAY,
-            max_patient_capacity=4
+            max_patient_capacity=8
+        ),
+        Staff(
+            staff_id="NURSE-GEN-03",
+            name="Nurse Jamal Washington, RN",
+            role=StaffRole.WARD_NURSE,
+            department="General Ward",
+            shift=StaffShift.DAY,
+            max_patient_capacity=8
+        ),
+        Staff(
+            staff_id="NURSE-GEN-04",
+            name="Nurse Chloe Bennett, RN",
+            role=StaffRole.WARD_NURSE,
+            department="General Ward",
+            shift=StaffShift.DAY,
+            max_patient_capacity=8
         ),
         Staff(
             staff_id="RT-01",
@@ -176,67 +248,57 @@ def generate_default_resources(
         )
     ]
     
-    # 3. Medical Equipment Generation
-    equipment: List[Equipment] = [
-        # Ventilators (Scarce Life Support - 10 Units)
-        Equipment(equipment_id="EQ-VENT-01", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-A", location="ICU Bay 1"),
-        Equipment(equipment_id="EQ-VENT-02", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-B", location="ICU Bay 2"),
-        Equipment(equipment_id="EQ-VENT-03", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-C", location="ICU Bay 3"),
-        Equipment(equipment_id="EQ-VENT-04", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-D", location="ICU Bay 4"),
-        Equipment(equipment_id="EQ-VENT-05", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-E", location="ICU Bay 5"),
-        Equipment(equipment_id="EQ-VENT-06", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-F", location="ICU Bay 6"),
-        Equipment(equipment_id="EQ-VENT-07", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-G", location="ICU Bay 7"),
-        Equipment(equipment_id="EQ-VENT-08", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-H", location="ICU Bay 8"),
-        Equipment(equipment_id="EQ-VENT-09", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-I", location="Emergency Bay 1"),
-        Equipment(equipment_id="EQ-VENT-10", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-J", location="Emergency Bay 2"),
+    # 3. Medical Equipment Generation (Scales with bed counts)
+    equipment: List[Equipment] = []
+    
+    # Ventilators (Scales dynamically with ICU capacity: at least num_icu_beds + 6 units)
+    num_vents = max(16, num_icu_beds + 6)
+    for i in range(1, num_vents + 1):
+        equipment.append(Equipment(
+            equipment_id=f"EQ-VENT-{i:02d}",
+            equipment_type=EquipmentType.VENTILATOR,
+            serial_number=f"VN-90812-{i:02d}",
+            location=f"ICU/Surge Bay {((i-1)%num_icu_beds)+1}"
+        ))
         
-        # ECG Monitors (8 Units across Resus and ER)
-        Equipment(equipment_id="EQ-ECG-01", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-A", location="Crash Cart 1"),
-        Equipment(equipment_id="EQ-ECG-02", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-B", location="Crash Cart 2"),
-        Equipment(equipment_id="EQ-ECG-03", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-C", location="Emergency Triage"),
-        Equipment(equipment_id="EQ-ECG-04", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-D", location="ER Bay 1"),
-        Equipment(equipment_id="EQ-ECG-05", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-E", location="ER Bay 2"),
-        Equipment(equipment_id="EQ-ECG-06", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-F", location="ER Bay 3"),
-        Equipment(equipment_id="EQ-ECG-07", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-G", location="ICU Bay 1"),
-        Equipment(equipment_id="EQ-ECG-08", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-H", location="ICU Bay 2"),
+    # ECG Monitors (Scales across wards)
+    num_ecg = max(16, num_icu_beds + num_emergency_beds)
+    for i in range(1, num_ecg + 1):
+        equipment.append(Equipment(
+            equipment_id=f"EQ-ECG-{i:02d}",
+            equipment_type=EquipmentType.ECG_MONITOR,
+            serial_number=f"ECG-3310-{i:02d}",
+            location=f"Bay {i}"
+        ))
         
-        # Oxygen Supplies (8 Units)
-        Equipment(equipment_id="EQ-O2-01", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-01", location="ER Bay 1"),
-        Equipment(equipment_id="EQ-O2-02", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-02", location="ER Bay 2"),
-        Equipment(equipment_id="EQ-O2-03", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-03", location="ER Bay 3"),
-        Equipment(equipment_id="EQ-O2-04", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-04", location="ER Bay 4"),
-        Equipment(equipment_id="EQ-O2-05", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-05", location="General Ward 1"),
-        Equipment(equipment_id="EQ-O2-06", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-06", location="General Ward 2"),
-        Equipment(equipment_id="EQ-O2-07", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-07", location="General Ward 3"),
-        Equipment(equipment_id="EQ-O2-08", equipment_type=EquipmentType.OXYGEN_SUPPLY, serial_number="O2-WALL-08", location="General Ward 4"),
+    # Oxygen Supplies (Scales across beds)
+    num_o2 = max(20, num_icu_beds + num_emergency_beds + num_general_beds)
+    for i in range(1, num_o2 + 1):
+        equipment.append(Equipment(
+            equipment_id=f"EQ-O2-{i:02d}",
+            equipment_type=EquipmentType.OXYGEN_SUPPLY,
+            serial_number=f"O2-WALL-{i:02d}",
+            location=f"Wall Station {i}"
+        ))
         
-        # Vital Signs Monitors (16 Bedside Units)
-        Equipment(equipment_id="EQ-MON-01", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8801", location="ER Bay 1"),
-        Equipment(equipment_id="EQ-MON-02", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8802", location="ER Bay 2"),
-        Equipment(equipment_id="EQ-MON-03", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8803", location="ER Bay 3"),
-        Equipment(equipment_id="EQ-MON-04", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8804", location="ER Bay 4"),
-        Equipment(equipment_id="EQ-MON-05", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8805", location="ER Bay 5"),
-        Equipment(equipment_id="EQ-MON-06", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8806", location="ER Bay 6"),
-        Equipment(equipment_id="EQ-MON-07", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8807", location="ICU Bay 1"),
-        Equipment(equipment_id="EQ-MON-08", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8808", location="ICU Bay 2"),
-        Equipment(equipment_id="EQ-MON-09", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8809", location="ICU Bay 3"),
-        Equipment(equipment_id="EQ-MON-10", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8810", location="ICU Bay 4"),
-        Equipment(equipment_id="EQ-MON-11", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8811", location="Gen Ward 1"),
-        Equipment(equipment_id="EQ-MON-12", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8812", location="Gen Ward 2"),
-        Equipment(equipment_id="EQ-MON-13", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8813", location="Gen Ward 3"),
-        Equipment(equipment_id="EQ-MON-14", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8814", location="Gen Ward 4"),
-        Equipment(equipment_id="EQ-MON-15", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8815", location="Gen Ward 5"),
-        Equipment(equipment_id="EQ-MON-16", equipment_type=EquipmentType.VITAL_SIGNS_MONITOR, serial_number="MON-8816", location="Gen Ward 6"),
+    # Vital Signs Monitors
+    num_mon = max(24, num_icu_beds + num_emergency_beds + num_general_beds)
+    for i in range(1, num_mon + 1):
+        equipment.append(Equipment(
+            equipment_id=f"EQ-MON-{i:02d}",
+            equipment_type=EquipmentType.VITAL_SIGNS_MONITOR,
+            serial_number=f"MON-88{i:02d}",
+            location=f"Bedside Monitor {i}"
+        ))
         
-        # Infusion Pumps (8 Units)
-        Equipment(equipment_id="EQ-PUMP-01", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-501", location="Pharmacy ER Cart"),
-        Equipment(equipment_id="EQ-PUMP-02", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-502", location="Pharmacy ER Cart"),
-        Equipment(equipment_id="EQ-PUMP-03", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-503", location="ICU Cart 1"),
-        Equipment(equipment_id="EQ-PUMP-04", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-504", location="ICU Cart 2"),
-        Equipment(equipment_id="EQ-PUMP-05", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-505", location="Gen Ward Cart 1"),
-        Equipment(equipment_id="EQ-PUMP-06", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-506", location="Gen Ward Cart 2"),
-        Equipment(equipment_id="EQ-PUMP-07", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-507", location="Gen Ward Cart 3"),
-        Equipment(equipment_id="EQ-PUMP-08", equipment_type=EquipmentType.INFUSION_PUMP, serial_number="INF-508", location="Gen Ward Cart 4")
-    ]
+    # Infusion Pumps
+    num_pump = max(16, num_icu_beds + num_emergency_beds)
+    for i in range(1, num_pump + 1):
+        equipment.append(Equipment(
+            equipment_id=f"EQ-PUMP-{i:02d}",
+            equipment_type=EquipmentType.INFUSION_PUMP,
+            serial_number=f"INF-{i:03d}",
+            location=f"Pump Cart {i}"
+        ))
     
     return HospitalResources(beds=beds, staff=staff, equipment=equipment)

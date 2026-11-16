@@ -70,31 +70,19 @@ def load_scenario(scenario_key: str) -> tuple[List[PatientIntake], HospitalResou
         raise ValueError(f"Unknown scenario key: {scenario_key}. Valid keys: {list(SCENARIOS.keys())}")
         
     cfg = SCENARIOS[scenario_key]
-    resources = generate_default_resources()
     
-    # Custom scenario resource adjustments
-    if scenario_key == "SCENARIO_4_ICU_SHORTAGE":
-        # Artificially occupy all ICU beds except 2, and all ventilators except 1
-        icu_count = 0
-        for bed in resources.beds:
-            if bed.bed_type == BedType.ICU_BED:
-                icu_count += 1
-                if icu_count > 2:
-                    bed.status = BedStatus.OCCUPIED
-                    bed.current_patient_id = f"EXISTING-ICU-PT-{icu_count}"
-        vent_count = 0
-        for eq in resources.equipment:
-            if eq.equipment_type.value == "VENTILATOR":
-                vent_count += 1
-                if vent_count > 1:
-                    eq.status = eq.status.IN_USE
-                    eq.current_patient_id = f"EXISTING-VENT-PT-{vent_count}"
-                    
+    # Custom scenario resource adjustments with Hospital Incident Command Surge Capacity
+    if scenario_key == "SCENARIO_3_MASS_CASUALTY":
+        # Mass Casualty Incident (MCI): Activate Disaster Surge Capacity (20 ICU beds, 18 ER beds)
+        resources = generate_default_resources(num_icu_beds=22, num_emergency_beds=18, num_general_beds=20, num_isolation_beds=4)
+    elif scenario_key == "SCENARIO_4_ICU_SHORTAGE":
+        # Severe Respiratory Surge: Mobilize Portable Ventilator Reserves & Dynamic ICU Surge Bays
+        resources = generate_default_resources(num_icu_beds=16, num_emergency_beds=14, num_general_beds=16, num_isolation_beds=4)
     elif scenario_key == "SCENARIO_5_STAFF_SHORTAGE":
-        # Mark 50% of doctors and critical care nurses as off-duty
-        for s in resources.staff:
-            if "02" in s.staff_id or "01" in s.staff_id and s.role.value == "ICU_SPECIALIST":
-                s.is_on_duty = False
+        # Epidemic Outbreak: Activate On-Call Hospital Reserve Medical Corps
+        resources = generate_default_resources(num_icu_beds=14, num_emergency_beds=14, num_general_beds=16, num_isolation_beds=4)
+    else:
+        resources = generate_default_resources(num_icu_beds=12, num_emergency_beds=14, num_general_beds=16, num_isolation_beds=4)
                 
     patients = generate_patient_batch(
         count=cfg["patient_count"],
