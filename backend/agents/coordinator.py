@@ -393,10 +393,7 @@ class HospitalCoordinator:
         for alloc in allocations:
             if alloc.is_allocated:
                 self.state.allocations[alloc.patient_id] = alloc
-                # If triage was not critical or already cleared, auto-commit
-                triage = self.state.triage_decisions.get(alloc.patient_id)
-                if triage and triage.priority != TriagePriority.CRITICAL:
-                    self._commit_allocation(alloc)
+                self._commit_allocation(alloc)
 
     def recalculate_metrics(self):
         """Updates live hospital capacity, occupancy, and wait-time statistics."""

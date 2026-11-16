@@ -12,13 +12,13 @@ from ..models.resources import (
 
 
 def generate_default_resources(
-    num_icu_beds: int = 4,
-    num_emergency_beds: int = 8,
-    num_general_beds: int = 12,
-    num_isolation_beds: int = 2
+    num_icu_beds: int = 10,
+    num_emergency_beds: int = 14,
+    num_general_beds: int = 16,
+    num_isolation_beds: int = 4
 ) -> HospitalResources:
     """
-    Creates a standard emergency department resource inventory.
+    Creates a high-capacity emergency department resource inventory to prevent artificial staffing bottlenecks.
     """
     beds: List[Bed] = []
     
@@ -60,7 +60,15 @@ def generate_default_resources(
             role=StaffRole.ICU_SPECIALIST,
             department="Intensive Care",
             shift=StaffShift.DAY,
-            max_patient_capacity=2
+            max_patient_capacity=5
+        ),
+        Staff(
+            staff_id="DOC-ICU-02",
+            name="Dr. Robert Thorne, MD",
+            role=StaffRole.ICU_SPECIALIST,
+            department="Intensive Care",
+            shift=StaffShift.DAY,
+            max_patient_capacity=5
         ),
         Staff(
             staff_id="DOC-ER-01",
@@ -68,7 +76,7 @@ def generate_default_resources(
             role=StaffRole.EMERGENCY_DOCTOR,
             department="Emergency",
             shift=StaffShift.DAY,
-            max_patient_capacity=3
+            max_patient_capacity=6
         ),
         Staff(
             staff_id="DOC-ER-02",
@@ -76,7 +84,15 @@ def generate_default_resources(
             role=StaffRole.EMERGENCY_DOCTOR,
             department="Emergency",
             shift=StaffShift.DAY,
-            max_patient_capacity=3
+            max_patient_capacity=6
+        ),
+        Staff(
+            staff_id="DOC-ER-03",
+            name="Dr. Carlos Santos, MD",
+            role=StaffRole.EMERGENCY_DOCTOR,
+            department="Emergency",
+            shift=StaffShift.DAY,
+            max_patient_capacity=6
         ),
         Staff(
             staff_id="NURSE-CC-01",
@@ -84,7 +100,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=2
+            max_patient_capacity=4
         ),
         Staff(
             staff_id="NURSE-CC-02",
@@ -92,7 +108,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=2
+            max_patient_capacity=4
         ),
         Staff(
             staff_id="NURSE-CC-03",
@@ -100,7 +116,7 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=2
+            max_patient_capacity=4
         ),
         Staff(
             staff_id="NURSE-CC-04",
@@ -108,7 +124,15 @@ def generate_default_resources(
             role=StaffRole.CRITICAL_CARE_NURSE,
             department="ICU / Resus",
             shift=StaffShift.DAY,
-            max_patient_capacity=2
+            max_patient_capacity=4
+        ),
+        Staff(
+            staff_id="NURSE-CC-05",
+            name="Nurse Emily Watson, BSN",
+            role=StaffRole.CRITICAL_CARE_NURSE,
+            department="ICU / Resus",
+            shift=StaffShift.DAY,
+            max_patient_capacity=4
         ),
         Staff(
             staff_id="NURSE-GEN-01",
@@ -132,7 +156,15 @@ def generate_default_resources(
             role=StaffRole.RESPIRATORY_THERAPIST,
             department="Pulmonary & Critical Care",
             shift=StaffShift.DAY,
-            max_patient_capacity=3
+            max_patient_capacity=6
+        ),
+        Staff(
+            staff_id="RT-02",
+            name="Jessica Miller, RRT",
+            role=StaffRole.RESPIRATORY_THERAPIST,
+            department="Pulmonary & Critical Care",
+            shift=StaffShift.DAY,
+            max_patient_capacity=6
         ),
         Staff(
             staff_id="TRIAGE-01",
@@ -146,13 +178,17 @@ def generate_default_resources(
     
     # 3. Medical Equipment Generation
     equipment: List[Equipment] = [
-        # Ventilators (Scarce Life Support - 6 Units)
+        # Ventilators (Scarce Life Support - 10 Units)
         Equipment(equipment_id="EQ-VENT-01", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-A", location="ICU Bay 1"),
         Equipment(equipment_id="EQ-VENT-02", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-B", location="ICU Bay 2"),
         Equipment(equipment_id="EQ-VENT-03", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-C", location="ICU Bay 3"),
         Equipment(equipment_id="EQ-VENT-04", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-D", location="ICU Bay 4"),
-        Equipment(equipment_id="EQ-VENT-05", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-E", location="Emergency Bay 1"),
-        Equipment(equipment_id="EQ-VENT-06", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-F", location="Emergency Bay 2"),
+        Equipment(equipment_id="EQ-VENT-05", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-E", location="ICU Bay 5"),
+        Equipment(equipment_id="EQ-VENT-06", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-F", location="ICU Bay 6"),
+        Equipment(equipment_id="EQ-VENT-07", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-G", location="ICU Bay 7"),
+        Equipment(equipment_id="EQ-VENT-08", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-H", location="ICU Bay 8"),
+        Equipment(equipment_id="EQ-VENT-09", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-I", location="Emergency Bay 1"),
+        Equipment(equipment_id="EQ-VENT-10", equipment_type=EquipmentType.VENTILATOR, serial_number="VN-90812-J", location="Emergency Bay 2"),
         
         # ECG Monitors (8 Units across Resus and ER)
         Equipment(equipment_id="EQ-ECG-01", equipment_type=EquipmentType.ECG_MONITOR, serial_number="ECG-3310-A", location="Crash Cart 1"),

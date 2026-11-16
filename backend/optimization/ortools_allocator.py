@@ -153,7 +153,10 @@ class HospitalOptimizationEngine:
                     if matching_eq:
                         model.Add(sum(z[pid, e.equipment_id] for e in matching_eq) >= u[pid])
                     else:
-                        model.Add(u[pid] == 0)
+                        # Hard gate only for Ventilator in respiratory failure
+                        if eq_type == EquipmentType.VENTILATOR and triage.priority == TriagePriority.CRITICAL:
+                            model.Add(u[pid] == 0)
+                        # Monitoring devices (ECG, Vitals Monitor) gracefully degrade without turning patient away
 
         # Objective Function
         objective_terms = []
