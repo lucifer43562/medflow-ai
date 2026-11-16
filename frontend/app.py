@@ -355,7 +355,7 @@ tabs = st.tabs([
     "⚡ Surge Simulation Engine",
     "➕ Emergency Patient Intake",
     "📜 Forensic Agent Audit Stream",
-    "🏛️ Agentic Standards & Evaluation (Req 1 - 11)"
+    "🏛️ Agentic Standards (Req 1 - 10)"
 ])
 
 # ==============================================================================
@@ -880,11 +880,11 @@ with tabs[5]:
 
 
 # ==============================================================================
-# TAB 7: AGENTIC SYSTEM STANDARDIZATION & ASSESSMENT REQUIREMENTS (1 TO 11)
+# TAB 7: AGENTIC SYSTEM STANDARDIZATION & ASSESSMENT REQUIREMENTS (1 TO 10)
 # ==============================================================================
 with tabs[6]:
-    st.subheader("🏛️ Project Standardization & Assessment Requirements (1 to 11)")
-    st.caption("Verification of All 11 University Evaluation Rubrics: Hover Blackboard, MCP Tools, Pydantic Structured Output, Patterns Matrix, Callbacks, CrewAI+ADK Interoperability, Security Guardrails, Observability & Tracing, Multi-Run Prompt Variance & Cost, and Cloud Deployment.")
+    st.subheader("🏛️ Project Standardization & Assessment Requirements (1 to 10)")
+    st.caption("Verification of the Core Agentic Requirements: Hover Blackboard, MCP Tools, Pydantic Structured Output, Patterns Matrix, Callbacks, CrewAI+ADK Interoperability, Security Guardrails, Observability & Tracing, and Multi-Run Prompt Variance & Cost.")
 
     std_tabs = st.tabs([
         "1️⃣ Context Sharing (Blackboard)",
@@ -895,8 +895,7 @@ with tabs[6]:
         "6️⃣ A2A Protocol (CrewAI+ADK)",
         "7️⃣ Security & Guardrails",
         "8️⃣ Observability & Tracing",
-        "9️⃣ Multi-Run Variance & Cost",
-        "🔟 Cloud Deployment Guide"
+        "9️⃣ Multi-Run Variance & Cost"
     ])
 
     # --------------------------------------------------------------------------
@@ -1429,98 +1428,6 @@ with tabs[6]:
                 react_cost = react_rows["cost_per_1k_patients_usd"].values[0]
         st.caption(f"Recommendation: **{opt_name}** balances maximal clinical accuracy ({react_acc}%) with tool grounding at negligible cost (${react_cost}/1k patients).")
 
-    # --------------------------------------------------------------------------
-    # SUBTAB 10: CLOUD DEPLOYMENT ARCHITECTURE & GUIDE (REQ 11)
-    # --------------------------------------------------------------------------
-    with std_tabs[9]:
-        st.markdown("#### 🔟 Cloud Deployment Architecture & Live Guide (Requirement 11)")
-        st.markdown("""
-        **Requirement 11 Specification:**
-        - Deploy the Multi-Agent System on a cloud platform prior to final assessment.
-        - Nothing should depend on or execute from local host during assessment.
-        - Containerized packaging via Docker & Docker Compose for zero-friction cloud deployment.
-        """)
-        
-        dep_tab1, dep_tab2, dep_tab3 = st.tabs([
-            "🚀 Method 1: Streamlit Cloud (Fastest - 2 Mins)",
-            "🐳 Method 2: Render / Railway (Dockerized)",
-            "☁️ Method 3: Google Cloud Run (GCP Enterprise)"
-        ])
-        
-        with dep_tab1:
-            st.markdown("""
-            ##### ⚡ 2-Minute Zero-Configuration Cloud Deployment (Recommended)
-            1. **Push your code to GitHub:**
-               ```bash
-               git add .
-               git commit -m "Deploy MedFlow AI Autonomous Hospital MAS"
-               git push origin main
-               ```
-            2. **Login to Streamlit Cloud:**
-               - Visit [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
-            3. **Create New App:**
-               - **Repository:** Select your GitHub repo.
-               - **Branch:** `main`
-               - **Main file path:** `frontend/app.py`
-            4. **Secrets / Environment Variables:**
-               - Add `GEMINI_API_KEY = "your-api-key"` under App Settings -> Secrets.
-            5. **Click 'Deploy!':**
-               - Your app is immediately live on a global `https://<your-app>.streamlit.app` public URL!
-            """)
-            
-        with dep_tab2:
-            st.markdown("""
-            ##### 🐳 Docker Full-Stack Deployment on Render / Railway
-            The repository contains a production-ready `Dockerfile` and `docker-compose.yml` that packages both:
-            - **FastAPI Core Backend** on Port `8000`
-            - **Streamlit Command Center UI** on Port `8501`
-
-            **Deploy on Render.com:**
-            1. Link GitHub repository to [render.com](https://render.com).
-            2. Create a new **Web Service** → Select **Docker**.
-            3. Set Environment Variable: `GEMINI_API_KEY`.
-            4. Click **Create Web Service** — Render automatically builds and serves the container on a free public `.onrender.com` domain.
-            """)
-            
-        with dep_tab3:
-            st.markdown("""
-            ##### ☁️ Production Google Cloud Run Deployment
-            Run these two commands using the Google Cloud CLI (`gcloud`):
-            ```bash
-            # 1. Build and push container to Google Artifact Registry
-            gcloud builds submit --tag gcr.io/PROJECT_ID/medflow-ai:v1
-
-            # 2. Deploy serverless container to Cloud Run
-            gcloud run deploy medflow-ai \\
-                --image gcr.io/PROJECT_ID/medflow-ai:v1 \\
-                --platform managed \\
-                --region us-central1 \\
-                --allow-unauthenticated \\
-                --port 8501
-            ```
-            """)
-
-        st.markdown("---")
-        st.markdown("##### 📦 Multi-Container Docker Configuration Status")
-        d_c1, d_c2 = st.columns(2)
-        with d_c1:
-            st.markdown("**Dockerfile Blueprint:**")
-            st.code("""
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8000 8501
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port 8000 & streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0"]
-            """, language="dockerfile")
-        with d_c2:
-            st.markdown("**Cloud Architecture Attributes:**")
-            st.markdown("""
-            - **Stateless Agent Execution:** Hover Blackboard maintains in-memory session resilience.
-            - **Health Check Endpoint:** `GET /health` on FastAPI for Cloud Run / AWS ALB health checks.
-            - **Zero Local Host Dependency:** Full standalone execution inside standard Linux container runtime.
-            """)
 
 
 
