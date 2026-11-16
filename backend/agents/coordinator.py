@@ -422,13 +422,13 @@ class HospitalCoordinator:
             pt = self.state.patients.get(pid)
             triage = self.state.triage_decisions.get(pid)
             if pt:
-                w = (now - pt.arrival_time).total_seconds() / 60.0
+                w = max(0.0, (now - pt.arrival_time).total_seconds() / 60.0)
                 waits.append(w)
                 if triage and triage.priority == TriagePriority.CRITICAL:
                     crit_waits.append(w)
                     
-        m.average_wait_time_minutes = round(sum(waits) / max(1, len(waits)), 1)
-        m.critical_average_wait_time_minutes = round(sum(crit_waits) / max(1, len(crit_waits)), 1)
+        m.average_wait_time_minutes = round(sum(waits) / max(1, len(waits)), 1) if waits else 0.0
+        m.critical_average_wait_time_minutes = round(sum(crit_waits) / max(1, len(crit_waits)), 1) if crit_waits else 0.0
         self.state.last_updated = now
 
     def reset_hospital(self, initial_resources: Optional[HospitalResources] = None):

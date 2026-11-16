@@ -169,7 +169,7 @@ def generate_single_patient(
     else:
         age = random.randint(5, 65)
         
-    arrival_time = datetime.now(timezone.utc) + timedelta(minutes=arrival_offset_minutes)
+    arrival_time = datetime.now(timezone.utc) - timedelta(minutes=arrival_offset_minutes)
     
     hr = random.randint(*profile["hr_range"])
     sbp = random.randint(*profile["sbp_range"])

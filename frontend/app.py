@@ -634,7 +634,7 @@ with tabs[1]:
             for pid, pt in state.patients.items():
                 t = state.triage_decisions.get(pid)
                 if t:
-                    w = (now - pt.arrival_time).total_seconds() / 60.0
+                    w = max(0.0, (now - pt.arrival_time).total_seconds() / 60.0)
                     wait_by_prio[t.priority.value].append(w)
                     
             avg_waits = [np.mean(wait_by_prio[k]) if wait_by_prio[k] else 0.0 for k in ["CRITICAL", "HIGH", "MODERATE", "LOW"]]
