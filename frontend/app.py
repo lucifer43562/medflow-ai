@@ -694,12 +694,28 @@ with tabs[1]:
 # TAB 3: DOCTOR REVIEW STATION (HITL)
 # ==============================================================================
 with tabs[2]:
-    st.subheader("🩺 Attending Physician Review & Clinical Override Station")
-    st.caption("Human-In-The-Loop Safety Gate: High-risk presentations, uncertainty spikes, and severe resource deficits require mandatory clinician sign-off.")
+    col_t1, col_t2 = st.columns([7, 5])
+    with col_t1:
+        st.subheader("🩺 Attending Physician Review & Clinical Override Station")
+        st.caption("Human-In-The-Loop Safety Gate: High-risk presentations, uncertainty spikes, and severe resource deficits require mandatory clinician sign-off.")
+    with col_t2:
+        if st.button("🚨 Inject High-Risk Patient for Live Doctor Override Demo", type="primary", use_container_width=True):
+            from backend.data.patient_generator import generate_single_patient
+            demo_p = generate_single_patient(
+                patient_id=f"P-HITL-{len(state.patients)+1:03d}",
+                target_severity="CRITICAL",
+                inject_ambiguity=True
+            )
+            demo_p.chief_complaint = "Severe acute chest agony radiating to left arm, profound diaphoresis, impending cardiogenic shock"
+            demo_p.vitals.oxygen_saturation = 82.0
+            demo_p.vitals.systolic_bp = 78
+            demo_p.vitals.heart_rate = 138
+            coordinator.intake_patient(demo_p)
+            st.rerun()
     
     tickets = list(state.pending_doctor_reviews.values())
     if not tickets:
-        st.success("✅ Zero pending tickets. All active patient assignments are safely committed.")
+        st.info("ℹ️ No pending doctor review tickets right now. Click the **'🚨 Inject High-Risk Patient for Live Doctor Override Demo'** button above or run a surge scenario to populate clinical override tickets.")
     else:
         for t in tickets:
             pt = state.patients.get(t.patient_id)
@@ -781,7 +797,7 @@ with tabs[3]:
                 f"- **Ambiguity Noise:** {scen_info['ambiguity_ratio'] * 100:.0f}%")
         
         sim_delay = st.slider("Arrival Speed (delay seconds)", 0.0, 0.8, 0.1, 0.1)
-        sim_approve = st.checkbox("Auto-approve all review tickets in simulation", value=True)
+        sim_approve = st.checkbox("Auto-approve all review tickets in simulation", value=False, help="Leave unchecked to preserve doctor review tickets in Tab 3 for live override demonstrations.")
         
         if st.button("🚀 Launch Live Surge Simulation", type="primary", use_container_width=True):
             pts, res_obj = load_scenario(scen_key)
