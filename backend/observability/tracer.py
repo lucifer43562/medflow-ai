@@ -50,13 +50,11 @@ class ObservabilityTracer:
         parent_span_id: Optional[str] = None,
         prompt_architecture: str = "Standard",
         metadata: Optional[Dict[str, Any]] = None,
-        prompt_arch: Optional[str] = None,
-        est_tokens: int = 0,
-        estimated_tokens: int = 0,
+        *args,
         **kwargs
     ) -> AgentSpan:
-        p_arch = prompt_arch or prompt_architecture
-        tokens = est_tokens or estimated_tokens
+        p_arch = kwargs.get("prompt_arch") or prompt_architecture
+        tokens = kwargs.get("est_tokens") or kwargs.get("estimated_tokens") or 0
         span = AgentSpan(
             trace_id=trace_id,
             parent_span_id=parent_span_id,
