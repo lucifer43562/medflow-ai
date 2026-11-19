@@ -49,15 +49,23 @@ class ObservabilityTracer:
         framework: str = "MedFlow",
         parent_span_id: Optional[str] = None,
         prompt_architecture: str = "Standard",
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
+        prompt_arch: Optional[str] = None,
+        est_tokens: int = 0,
+        estimated_tokens: int = 0,
+        **kwargs
     ) -> AgentSpan:
+        p_arch = prompt_arch or prompt_architecture
+        tokens = est_tokens or estimated_tokens
         span = AgentSpan(
             trace_id=trace_id,
             parent_span_id=parent_span_id,
             agent_name=agent_name,
             framework=framework,
             action=action,
-            prompt_architecture=prompt_architecture,
+            prompt_architecture=p_arch,
+            estimated_tokens=tokens,
+            estimated_cost_usd=round((tokens / 1000.0) * self.COST_PER_1K_TOKENS, 6),
             provenance_metadata=metadata or {}
         )
         self._spans[span.span_id] = span
@@ -70,8 +78,9 @@ class ObservabilityTracer:
         self,
         span_id: str,
         status: str = "SUCCESS",
-        estimated_tokens: int = 150,
-        extra_metadata: Optional[Dict[str, Any]] = None
+        estimated_tokens: Optional[int] = None,
+        extra_metadata: Optional[Dict[str, Any]] = None,
+        **kwargs
     ) -> Optional[AgentSpan]:
         if span_id not in self._spans:
             return None
@@ -80,11 +89,16 @@ class ObservabilityTracer:
         span.end_time = datetime.now(timezone.utc)
         span.duration_ms = max(1.0, (span.end_time - span.start_time).total_seconds() * 1000.0)
         span.status = status
-        span.estimated_tokens = estimated_tokens
-        span.estimated_cost_usd = round((estimated_tokens / 1000.0) * self.COST_PER_1K_TOKENS, 6)
+        if estimated_tokens is not None:
+            span.estimated_tokens = estimated_tokens
+            span.estimated_cost_usd = round((estimated_tokens / 1000.0) * self.COST_PER_1K_TOKENS, 6)
         if extra_metadata:
             span.provenance_metadata.update(extra_metadata)
         return span
+
+    def get_spans_by_trace(self, trace_id: str) -> List[AgentSpan]:
+        span_ids = self._active_traces.get(trace_id, [])
+        return [self._spans[sid] for sid in span_ids if sid in self._spans]
 
     def get_trace_summary(self, trace_id: str) -> Dict[str, Any]:
         span_ids = self._active_traces.get(trace_id, [])

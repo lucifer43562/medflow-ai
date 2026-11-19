@@ -1362,22 +1362,22 @@ with tabs[6]:
                 tid = f"TRACE-{int(time.time())%10000:04d}"
                 
                 # Span 1: Triage Agent
-                s1 = tracer.start_span(tid, "TriageSpecialist", "Assess Vitals & Generate NEWS2", framework="CrewAI", prompt_arch="ReAct", est_tokens=420)
+                s1 = tracer.start_span(tid, "TriageSpecialist", "Assess Vitals & Generate NEWS2", framework="CrewAI", prompt_architecture="ReAct", prompt_arch="ReAct", estimated_tokens=420, est_tokens=420)
                 time.sleep(0.04)
                 tracer.finish_span(s1.span_id, status="SUCCESS")
                 
                 # Span 2: Guidelines Tool (Child of Span 1)
-                s2 = tracer.start_span(tid, "ClinicalGuidelinesMCPTool", "Query Sepsis & STEMI Protocols", framework="MCP", parent_span_id=s1.span_id, est_tokens=180)
+                s2 = tracer.start_span(tid, "ClinicalGuidelinesMCPTool", "Query Sepsis & STEMI Protocols", framework="MCP", parent_span_id=s1.span_id, estimated_tokens=180, est_tokens=180)
                 time.sleep(0.02)
                 tracer.finish_span(s2.span_id, status="SUCCESS")
                 
                 # Span 3: Allocation Specialist
-                s3 = tracer.start_span(tid, "ADKAllocationSpecialist", "Bipartite Knapsack Resource Assignment", framework="Google ADK", prompt_arch="Few-Shot", parent_span_id=s1.span_id, est_tokens=310)
+                s3 = tracer.start_span(tid, "ADKAllocationSpecialist", "Bipartite Knapsack Resource Assignment", framework="Google ADK", prompt_architecture="Few-Shot", prompt_arch="Few-Shot", parent_span_id=s1.span_id, estimated_tokens=310, est_tokens=310)
                 time.sleep(0.035)
                 tracer.finish_span(s3.span_id, status="SUCCESS")
                 
                 # Span 4: Escalation Agent
-                s4 = tracer.start_span(tid, "EscalationAgent", "Evaluate Doctor Override Thresholds", framework="MedFlow Core", parent_span_id=s3.span_id, est_tokens=150)
+                s4 = tracer.start_span(tid, "EscalationAgent", "Evaluate Doctor Override Thresholds", framework="MedFlow Core", parent_span_id=s3.span_id, estimated_tokens=150, est_tokens=150)
                 time.sleep(0.015)
                 tracer.finish_span(s4.span_id, status="SUCCESS")
                 
