@@ -80,6 +80,11 @@ class SecurityGuardrailEngine:
         )
 
     @classmethod
+    def sanitize_prompt(cls, user_text: str) -> GuardrailVerdict:
+        """Alias for validate_input for cross-runtime API compatibility."""
+        return cls.validate_input(user_text)
+
+    @classmethod
     def validate_tool_return(cls, tool_name: str, raw_output: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         """
         Type-checks and range-checks tool returns before handing them to downstream agents.

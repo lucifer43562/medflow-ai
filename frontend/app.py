@@ -47,13 +47,16 @@ except Exception:
         PERMISSIVE = "PERMISSIVE"
     class SecurityGuardrailEngine:
         @classmethod
-        def sanitize_prompt(cls, prompt: str):
+        def validate_input(cls, prompt: str):
             from pydantic import BaseModel
             class V(BaseModel):
                 is_safe: bool = True
                 risk_score: float = 0.0
                 sanitized_input: str = prompt
             return V()
+        @classmethod
+        def sanitize_prompt(cls, prompt: str):
+            return cls.validate_input(prompt)
     class ClinicalSafetyFilter:
         def __init__(self, sensitivity=SafetySensitivity.BALANCED):
             self.sensitivity = sensitivity
@@ -1280,7 +1283,10 @@ with tabs[6]:
                 }
                 filter_inst = ClinicalSafetyFilter(sensitivity=sens_map[sens_choice])
                 verdict, score, violations = filter_inst.evaluate_risk(test_attack_input)
-                sanitized = SecurityGuardrailEngine.sanitize_prompt(test_attack_input)
+                if hasattr(SecurityGuardrailEngine, "validate_input"):
+                    sanitized = SecurityGuardrailEngine.validate_input(test_attack_input)
+                else:
+                    sanitized = SecurityGuardrailEngine.sanitize_prompt(test_attack_input)
 
                 st.session_state["sec_eval_res"] = {
                     "verdict": verdict,
